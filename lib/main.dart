@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_not_sepeti/kategori_ekle.dart';
 import 'package:flutter_not_sepeti/utils/database_helper.dart';
 
 void main() {
@@ -36,6 +37,27 @@ class _AnasayfaState extends State<Anasayfa> {
   List<Map<String, dynamic>> _kategoriler = [];
   bool _yukleniyor = true;
 
+  // 2. Kategorileri veritabanından çekip arayüzü güncelleyen fonksiyon
+  void _kategorileriYenile() async {
+    // Veritabanından güncel listeyi al
+    final guncelKategoriler = await DatabaseHelper.numune.kategorileriGetir();
+
+    setState(() {
+      _kategoriler = guncelKategoriler;
+    });
+  }
+
+  void _kategoriEkleEkraniniAc() async {
+    final sonuc = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const KategoriEklePage()),
+    );
+
+    if (sonuc == true) {
+      _kategorileriYenile(); // Geri dönüldüğünde üstteki yenileme fonksiyonunu tetikler
+    }
+  }
+
   String? _secilenFiltreTarih;
   int? _secilenFiltreKategoriId;
   int? _secilenFiltreOncelik;
@@ -49,6 +71,7 @@ class _AnasayfaState extends State<Anasayfa> {
   void initState() {
     super.initState();
     _verileriYukle();
+    _kategorileriYenile();
   }
 
   @override
@@ -115,6 +138,15 @@ class _AnasayfaState extends State<Anasayfa> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.menu),
+            tooltip: "Kategori Ekle",
+            onPressed: () {
+              _kategoriEkleEkraniniAc();
+            },
+          ),
+        ],
         title: const Text("Not Sepeti Uygulaması"),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
@@ -181,7 +213,15 @@ class _AnasayfaState extends State<Anasayfa> {
                             const SizedBox(width: 6),
                             Expanded(
                               child: DropdownButtonFormField<int>(
-                                initialValue: _secilenFiltreKategoriId,
+                                // BURAYI GÜNCELLEYİN: Seçilen ID listede gerçekten var mı kontrol et, yoksa null yap (Hepsi seçeneğine döner)
+                                initialValue:
+                                    _kategoriler.any(
+                                      (kat) =>
+                                          kat['kategoriId'] ==
+                                          _secilenFiltreKategoriId,
+                                    )
+                                    ? _secilenFiltreKategoriId
+                                    : null,
                                 hint: const Text(
                                   "Kategori",
                                   style: TextStyle(fontSize: 12),

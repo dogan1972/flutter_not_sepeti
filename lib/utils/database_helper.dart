@@ -42,7 +42,7 @@ class DatabaseHelper {
     var kontrol = await databaseExists(veritabaniYolu);
     debugPrint("Kontrol sonucu: ${kontrol.toString()}");
 
-    //8. Şayet kontrol true dönerse veritabanı dosyasını kaynak klasörden cihaza kopyala .
+    //8. Şayet yoksa veritabanı dosyasını kaynak klasörden cihaza kopyala .
 
     if (!kontrol) {
       try {
@@ -120,6 +120,33 @@ class DatabaseHelper {
       veri,
       where: "notId = ?",
       whereArgs: [veri["notId"]],
+    );
+  }
+
+  // Yeni kategori ekler
+  Future<int> kategoriEkle(Map<String, dynamic> veri) async {
+    Database db = await numune.veritabaniKontrol;
+    return await db.insert("kategori", veri);
+  }
+
+  // Mevcut kategoriyi günceller
+  Future<int> kategoriGuncelle(Map<String, dynamic> veri) async {
+    Database db = await numune.veritabaniKontrol;
+    return await db.update(
+      "kategori",
+      veri,
+      where: "kategoriId = ?",
+      whereArgs: [veri["kategoriId"]],
+    );
+  }
+
+  // Kategoriyi siler (ON DELETE CASCADE ile bağlı notlar da silinir)
+  Future<int> kategoriSil(int id) async {
+    Database db = await numune.veritabaniKontrol;
+    return await db.delete(
+      "kategori",
+      where: "kategoriId = ?",
+      whereArgs: [id],
     );
   }
 }
