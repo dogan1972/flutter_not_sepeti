@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_not_sepeti/kategori_ekle.dart';
+import 'package:flutter_not_sepeti/kategori_ekle_page.dart';
 import 'package:flutter_not_sepeti/utils/database_helper.dart';
 
 void main() {
